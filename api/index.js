@@ -7,8 +7,8 @@ let intervalId;
 // URLs to fetch data from
 
 // Function to fetch data from the URLs
+let urls
 async function fetchData() {
-  let urls
   try {
     try{
       urls = await (
@@ -17,8 +17,6 @@ async function fetchData() {
           { method: "GET", mode: "cors" }
         ).then()
       ).json();
-
-      console.log("Urls => ", await urls);
     }catch(err){
       console.log("Urls Error =>",err)
     }
@@ -48,21 +46,27 @@ function startDataFetching() {
 
   intervalId = setInterval(async () => {
     await fetchData();
-    console.log(`Data triggered every ${time}ms and  Intervel ID => ${intervalId}`);
+    console.log(`Data triggered every ${time/60000} Minutes`);
   }, time);
 }
 
 startDataFetching();
 
 app.use("*", async (req, res) => {
-  if (req.query.time) {
-    const newTime = Number(req.query.time);
+  if(req.query.time === "0"){
+      res.json({
+        interval_time: `${time / 60000} Minutes`,
+        Urls: urls
+      });
+  }
+  else if (req.query.time) {
+    const newTime = 60000 * Number(req.query.time);
     if (!isNaN(newTime) && newTime > 0) {
-      res.json(`Request: Old interval: ${time}ms, New interval: ${newTime}ms`);
+      res.json({Old_interval : `${time/60000} Minutes` , New_interval:`${newTime /60000} Minutes`});
 
       time = newTime;
 
-      console.log(`New time interval set to ${time}ms`);
+      console.log(`New time interval set to ${time / 60000} Minutes`);
 
       // Clear the existing interval and restart it with the new time
       startDataFetching();
@@ -70,9 +74,7 @@ app.use("*", async (req, res) => {
       res.status(400).json("Invalid time value. It must be a positive number.");
     }
   } else {
-    await fetchData();
-    res.json("No data available");
-    console.log("Triggered data manually");
+    res.json("Invalid Request.");
   }
 });
 
