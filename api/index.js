@@ -48,7 +48,7 @@ function startDataFetching() {
 
   intervalId = setInterval(async () => {
     await fetchData();
-    console.log(`Data triggered every ${time}ms and => ${intervalId}`);
+    console.log(`Data triggered every ${time}ms and  Intervel ID => ${intervalId}`);
   }, time);
 }
 
